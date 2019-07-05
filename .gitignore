@@ -1,0 +1,71 @@
+=============== 
+Unity generated
+===============
+Temp/
+Library/
+
+=====================================
+Visual Studio / MonoDevelop generated
+=====================================
+ExportedObj/
+obj/
+*.svd
+*.userprefs
+/*.csproj
+*.pidb
+*.suo
+/*.sln
+*.user
+*.unityproj
+*.booproj
+
+============
+OS generated
+============
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+builds
+Build/*
+*.orig
+*.orig.meta
+
+============
+Windows generated
+============
+*Thumbs*
+
+
+/Assets/Resources/scripts/AutoSave.cs.meta
+/Assets/Resources/scripts/AutoSave.cs
+
+*.apk
+.idea/
+
+*.app
+
+Unity/*.csproj
+
+Assets/Plugins/
+Assets/Plugins.meta
+
+Assets/KriptoFX/
+Assets/uMMORPG/
+Assets/Unity Essentials - Lighting Optimisation Tutorial/
+Assets/Unity Essentials - Standard Assets/
+Assets/KriptoFX.meta
+Assets/uMMORPG.meta
+Assets/Unity Essentials - Lighting Optimisation Tutorial.meta
+Assets/Unity Essentials - Standard Assets.meta
+
+ProjectSettings/ProjectVersion.txt
+Assets/NatureStarterKit2/
+Assets/Free_Rocks/
+Assets/Free_Rocks.meta
+Assets/NatureStarterKit2.meta
+Assets/RPG_inventory_icons/
+Assets/RPG_inventory_icons.meta
