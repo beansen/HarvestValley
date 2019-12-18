@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Zenject;
 
 public class PlayerController : MonoBehaviour
 {
 
 	public FarmingManager FarmingManager;
-	public Inventory Inventory;
-	public UIInventory UiInventory;
 	public GameObject Marker;
 
 	public Texture2D[] Cursors;
+
+	[Inject] private Inventory inventory;
+
+	[Inject] private UiController uiController;
 
 	private Animator animator;
 
@@ -114,7 +117,7 @@ public class PlayerController : MonoBehaviour
 
 			if (IsMouseNearPlayer(mousePosition))
 			{
-				FarmingManager.Action(Inventory.GetPlayerAction(), (int) mousePosition.x - 20, (int) mousePosition.z - 20, Inventory.GetSeed());
+				FarmingManager.Action(inventory.GetPlayerAction(), (int) mousePosition.x - 20, (int) mousePosition.z - 20, inventory.GetSeed());
 			}
 		}
 	}
@@ -184,8 +187,8 @@ public class PlayerController : MonoBehaviour
 		{
 			if (Input.GetKeyDown(key))
 			{
-				Inventory.SelectItem(alphaKeys[key]);
-				UiInventory.SwitchSelection(alphaKeys[key]);
+				inventory.SelectItem(alphaKeys[key]);
+				uiController.SwitchSelection(alphaKeys[key]);
 			}
 		}
 		
@@ -213,6 +216,5 @@ public enum PlayerAction
 	Plow,
 	Water,
 	Seed,
-	Sell,
 	None
 }

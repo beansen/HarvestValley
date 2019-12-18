@@ -1,30 +1,33 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using Zenject;
 
-public class Inventory : MonoBehaviour
+public class Inventory
 {
 
-	private List<InventoryItem> backpack;
+	private UiController uiController;
+	private Dictionary<int, InventoryItem> backpack;
 
-	private int selectedItem = 0;
+	private int selectedItem;
 	private int freeSlot;
 
-	// Use this for initialization
-	void Start () {
-		backpack = new List<InventoryItem>();
+	[Inject]
+	public void Init(UiController uiController)
+	{
+		this.uiController = uiController;
+		backpack = new Dictionary<int, InventoryItem>();
 		InitBackpack();
+		this.uiController.InitBackpack(backpack);
 	}
 
 	private void InitBackpack()
 	{
-		backpack.Add(new InventoryItem(PlayerAction.Plow, Seed.None, 1));
-		backpack.Add(new InventoryItem(PlayerAction.Water, Seed.None, 1));
-		backpack.Add(new InventoryItem(PlayerAction.Seed, Seed.Carrot, 1));
-		backpack.Add(new InventoryItem(PlayerAction.Seed, Seed.Eggplant, 1));
-		backpack.Add(new InventoryItem(PlayerAction.Seed, Seed.Pumpkin, 1));
-		backpack.Add(new InventoryItem(PlayerAction.Seed, Seed.Tomato, 1));
-		backpack.Add(new InventoryItem(PlayerAction.Seed, Seed.Turnip, 1));
+		backpack.Add(0, new InventoryItem(PlayerAction.Plow, Seed.None, 1));
+		backpack.Add(1, new InventoryItem(PlayerAction.Water, Seed.None, 1));
+		backpack.Add(2, new InventoryItem(PlayerAction.Seed, Seed.Carrot, 10));
+		backpack.Add(3, new InventoryItem(PlayerAction.Seed, Seed.Eggplant, 10));
+		backpack.Add(4, new InventoryItem(PlayerAction.Seed, Seed.Pumpkin, 10));
+		backpack.Add(5, new InventoryItem(PlayerAction.Seed, Seed.Tomato, 10));
+		backpack.Add(6, new InventoryItem(PlayerAction.Seed, Seed.Turnip, 10));
 		freeSlot = backpack.Count;
 	}
 
@@ -35,29 +38,48 @@ public class Inventory : MonoBehaviour
 
 	public PlayerAction GetPlayerAction()
 	{
-		if (selectedItem < backpack.Count && backpack[selectedItem] != null)
+		if (backpack.ContainsKey(selectedItem))
 		{
 			return backpack[selectedItem].PlayerAction;
 		}
-		else
-		{
-			return PlayerAction.None;
-		}
+		
+		return PlayerAction.None;
 	}
 
 	public Seed GetSeed()
 	{
-		if (selectedItem < backpack.Count && backpack[selectedItem] != null)
+		if (backpack.ContainsKey(selectedItem))
 		{
 			return backpack[selectedItem].Seed;
 		}
-		else
+
+		return Seed.None;
+	}
+
+	public void RemoveItem(int amount)
+	{
+		if (backpack.ContainsKey(selectedItem))
 		{
-			return Seed.None;
+			backpack[selectedItem].Amount -= amount;
+
+			if (backpack[selectedItem].Amount <= 0)
+			{
+				backpack.Remove(selectedItem);
+				uiController.RemoveItem(selectedItem);
+
+				if (freeSlot > selectedItem)
+				{
+					freeSlot = selectedItem;
+				}
+			}
+			else
+			{
+				uiController.ChangeAmount(selectedItem, backpack[selectedItem].Amount);
+			}
 		}
 	}
 
-	private class InventoryItem
+	public class InventoryItem
 	{
 		public PlayerAction PlayerAction;
 		public Seed Seed;
@@ -70,12 +92,4 @@ public class Inventory : MonoBehaviour
 			this.Amount = amount;
 		} 
 	}
-}
-
-public enum ItemType
-{
-	Hoe,
-	WateringCan,
-	Seed,
-	Sellable
 }

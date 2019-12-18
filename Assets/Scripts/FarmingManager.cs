@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 public class FarmingManager : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class FarmingManager : MonoBehaviour
 	public GameObject farmPatchPrefab;
 	public List<PlantData> PlantBalancingData;
 	public Sprite[] Sprites;
+	
+	[Inject] private Inventory inventory;
+	[Inject] private UiController uiController;
 	
 	private Dictionary<int, FarmingPatch> patches;
 
@@ -64,6 +68,7 @@ public class FarmingManager : MonoBehaviour
 				patch.GameObject.transform.GetChild(0).gameObject.SetActive(false);
 				patch.GameObject.transform.GetChild(1).gameObject.SetActive(false);
 				addToCropsPool(patch.GameObject, patch.Data.Type);
+				uiController.CreateCollectables(patch.Data.Type, patch.GameObject.transform.GetChild(0).position);
 				patch.Data = new PlantData();
 				patch.GameObject = null;
 				patch.DaysGrowing = -1;
@@ -83,6 +88,7 @@ public class FarmingManager : MonoBehaviour
 					patch.Data = getPlantData(seed);
 					patch.SpriteRenderer.sprite = Sprites[1];
 					patch.DaysGrowing = 0;
+					inventory.RemoveItem(1);
 				}
 			}
 		}
