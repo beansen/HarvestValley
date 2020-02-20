@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
-using Object = System.Object;
 using Random = UnityEngine.Random;
 
 public class UiController : MonoBehaviour
@@ -20,19 +19,36 @@ public class UiController : MonoBehaviour
 	[Inject]
 	private Inventory inventory;
 
-	private int currentSelection = 0;
+	private int currentSelection;
 
 	private Image[] borderImages;
 	private Image[] foregroundImages;
 	private Text[] itemTexts;
+
+	public bool ChestMode { get; set; }
 	
 	void Update()
 	{
 		if (collectableCropsList != null)
 		{
-			foreach (CollectableCrops crops in collectableCropsList)
+			for (int i = collectableCropsList.Count - 1; i >= 0; i--)
 			{
-				crops.Update(Camera.main.WorldToScreenPoint(Player.position));
+				collectableCropsList[i].Update(Player.position);
+
+				if (collectableCropsList[i].Collectable)
+				{
+					if (inventory.CanCollectItem(collectableCropsList[i].Seed, PlayerAction.None)
+					    && Vector3.Distance(collectableCropsList[i].WorldPosition, Player.position) <= 2)
+					{
+						collectableCropsList[i].SetCollected();
+						inventory.AddItem(collectableCropsList[i].Seed, PlayerAction.None, 4);
+					}
+				}
+
+				if (collectableCropsList[i].Deactivated)
+				{
+					collectableCropsList.RemoveAt(i);
+				}
 			}
 		}
 	}
@@ -61,22 +77,22 @@ public class UiController : MonoBehaviour
 	public void AddItem(int index, Inventory.InventoryItem item)
 	{
 		foregroundImages[index].gameObject.SetActive(true);
-		foregroundImages[index].sprite = GetSprite(item);
+		foregroundImages[index].sprite = item.PlayerAction == PlayerAction.None ? GetCollectableSprite(item.Seed) : GetSprite(item);
 		itemTexts[index].text = item.Amount > 1 ? item.Amount.ToString() : String.Empty;
 	}
 
 	public void CreateCollectables(Seed seed, Vector3 start)
 	{
-		CollectableCrops collectable = new CollectableCrops();
+		CollectableCrops collectable = new CollectableCrops(seed, start);
 		
 		for (int i = 0; i < 4; i++)
 		{
 			Vector3 pos = start;
-			pos.y += Random.Range(0, 2f);
+			pos.z += Random.Range(-1f, 1f);
 
-			GameObject go = Instantiate(collectablePrefab, MainPanel, true);
-			go.transform.position = Camera.main.WorldToScreenPoint(pos);
-			collectable.AddItem(go);
+			GameObject go = Instantiate(collectablePrefab, MainPanel);
+			go.GetComponent<Image>().sprite = GetCollectableSprite(seed);
+			collectable.AddItem(go, pos);
 		}
 		
 		collectableCropsList.Add(collectable);
@@ -101,6 +117,13 @@ public class UiController : MonoBehaviour
 			{
 				inventory.SelectItem(index);
 				SwitchSelection(index);
+
+				if (ChestMode)
+				{
+					bool transferred = inventory.TransferItemToChest(index);
+					if (transferred)
+						RemoveItem(index);
+				}
 			});
 
 			if (i != currentSelection)
@@ -143,13 +166,13 @@ public class UiController : MonoBehaviour
 		return null;
 	}
 	
-	private Sprite GetCollectableSprite(Inventory.InventoryItem item)
+	private Sprite GetCollectableSprite(Seed seed)
 	{
 		for (int i = 2; i < ItemSprites.Length; i++)
 		{
-			if (ItemSprites[i].Seed == item.Seed)
+			if (ItemSprites[i].Seed == seed)
 			{
-				return ItemSprites[i].Sprite;
+				return ItemSprites[i].Collectable;
 			}
 		}
 		
@@ -164,66 +187,5 @@ public class UiController : MonoBehaviour
 		public Seed Seed;
 		public Sprite Sprite;
 		public Sprite Collectable;
-	}
-	
-	private class CollectableCrops
-	{
-		private float timer;
-		private List<GameObject> gameObjects;
-		private List<ObjectData> objects;
-		private bool floatToPlayer;
-
-		public void Update(Vector3 playerPosition)
-		{
-			if (floatToPlayer)
-			{
-				
-			}
-			else
-			{
-				timer += Time.deltaTime * 4;
-				float sin = Mathf.Sin(timer);
-
-				for (int i = 0; i < gameObjects.Count; i++)
-				{
-					Vector3 newPos = gameObjects[i].transform.position;
-					newPos.x += objects[i].Direction;
-					newPos.y = objects[i].StartPos + (50 * sin);
-					gameObjects[i].transform.position = newPos;
-				}
-
-				floatToPlayer = sin <= 0;
-			}
-		}
-
-		public void AddItem(GameObject gameObject)
-		{
-			if (objects == null)
-			{
-				objects = new List<ObjectData>();
-				gameObjects = new List<GameObject>();
-			}
-
-			int direction = Random.Range(0, 2) == 0 ? -1 : 1;
-			objects.Add(new ObjectData(direction, gameObject.transform.position.y));
-			gameObjects.Add(gameObject);
-		}
-
-		public List<GameObject> GetGameObjects()
-		{
-			return gameObjects;
-		}
-		
-		private struct ObjectData
-		{
-			public int Direction;
-			public float StartPos;
-
-			public ObjectData(int direction, float startPos)
-			{
-				this.Direction = direction;
-				this.StartPos = startPos;
-			}
-		}
 	}
 }
