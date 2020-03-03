@@ -11,6 +11,17 @@ public class Inventory
 	private int selectedItem;
 	private int freeSlot;
 	private int backpackSize = 10;
+	private int coins = 100;
+
+	public int Coins
+	{
+		get { return coins; }
+	}
+
+	public List<InventoryItem> ChestStorage
+	{
+		get { return chestStorage; }
+	}
 
 	[Inject]
 	public void Init(UiController uiController)
@@ -19,18 +30,19 @@ public class Inventory
 		backpack = new Dictionary<int, InventoryItem>();
 		chestStorage = new List<InventoryItem>();
 		InitBackpack();
-		this.uiController.InitBackpack(backpack);
+		uiController.InitBackpack(backpack);
+		uiController.SetCoins(coins);
 	}
 
 	private void InitBackpack()
 	{
-		backpack.Add(0, new InventoryItem(PlayerAction.Plow, Seed.None, 1));
-		backpack.Add(1, new InventoryItem(PlayerAction.Water, Seed.None, 1));
-		backpack.Add(2, new InventoryItem(PlayerAction.Seed, Seed.Carrot, 2));
-		backpack.Add(3, new InventoryItem(PlayerAction.Seed, Seed.Eggplant, 2));
-		backpack.Add(4, new InventoryItem(PlayerAction.Seed, Seed.Pumpkin, 2));
-		//backpack.Add(5, new InventoryItem(PlayerAction.Seed, Seed.Tomato, 10));
-		//backpack.Add(6, new InventoryItem(PlayerAction.Seed, Seed.Turnip, 10));
+		backpack.Add(0, new InventoryItem(PlayerAction.Plow, ItemName.Pickaxe, 1));
+		backpack.Add(1, new InventoryItem(PlayerAction.Water, ItemName.WateringCan, 1));
+		backpack.Add(2, new InventoryItem(PlayerAction.Seed, ItemName.Carrot, 2));
+		backpack.Add(3, new InventoryItem(PlayerAction.Seed, ItemName.Eggplant, 2));
+		backpack.Add(4, new InventoryItem(PlayerAction.Seed, ItemName.Pumpkin, 2));
+		//backpack.Add(5, new InventoryItem(PlayerAction.Seed, Item.Tomato, 10));
+		//backpack.Add(6, new InventoryItem(PlayerAction.Seed, Item.Turnip, 10));
 		freeSlot = backpack.Count;
 	}
 
@@ -49,18 +61,18 @@ public class Inventory
 		return PlayerAction.None;
 	}
 
-	public Seed GetSeed()
+	public InventoryItem GetSelectedItem()
 	{
-		return backpack.ContainsKey(selectedItem) ? backpack[selectedItem].Seed : Seed.None;
+		return backpack.ContainsKey(selectedItem) ? backpack[selectedItem] : null;
 	}
 
-	public void AddItem(Seed seed, PlayerAction playerAction, int amount)
+	public void AddItem(ItemName itemName, PlayerAction playerAction, int amount)
 	{
 		bool itemAdded = false;
 
 		foreach (int key in backpack.Keys)
 		{
-			if (backpack[key].Seed == seed && backpack[key].PlayerAction == playerAction)
+			if (backpack[key].ItemName == itemName && backpack[key].PlayerAction == playerAction)
 			{
 				backpack[key].Amount += amount;
 				uiController.ChangeAmount(key, backpack[key].Amount);
@@ -71,7 +83,7 @@ public class Inventory
 
 		if (!itemAdded)
 		{
-			InventoryItem inventoryItem = new InventoryItem(playerAction, seed, amount);
+			InventoryItem inventoryItem = new InventoryItem(playerAction, itemName, amount);
 			backpack.Add(freeSlot, inventoryItem);
 			uiController.AddItem(freeSlot, inventoryItem);
 
@@ -116,7 +128,7 @@ public class Inventory
 		}
 	}
 
-	public bool CanCollectItem(Seed seed, PlayerAction playerAction)
+	public bool CanCollectItem(ItemName itemName, PlayerAction playerAction)
 	{
 		if (backpack.Count < backpackSize)
 		{
@@ -125,7 +137,7 @@ public class Inventory
 
 		foreach (InventoryItem item in backpack.Values)
 		{
-			if (item.Seed == seed && item.PlayerAction == playerAction)
+			if (item.ItemName == itemName && item.PlayerAction == playerAction)
 			{
 				return true;
 			}
@@ -156,22 +168,23 @@ public class Inventory
 		return false;
 	}
 
+	public void AddCoins(int amount)
+	{
+		coins += amount;
+		uiController.SetCoins(coins);
+	}
+
 	public class InventoryItem
 	{
 		public PlayerAction PlayerAction;
-		public Seed Seed;
+		public ItemName ItemName;
 		public int Amount;
 
-		public InventoryItem(PlayerAction playerAction, Seed seed, int amount)
+		public InventoryItem(PlayerAction playerAction, ItemName itemName, int amount)
 		{
 			this.PlayerAction = playerAction;
-			this.Seed = seed;
+			this.ItemName = itemName;
 			this.Amount = amount;
 		} 
 	}
 }
-
-/*
- * Selected item - left click puts into chest
- * Right click on chest puts up inventory - left click puts into chest
- */

@@ -8,14 +8,14 @@ using Zenject;
 public class PlayerController : MonoBehaviour
 {
 
-	public FarmingManager FarmingManager;
+	
 	public GameObject Marker;
 
 	public Texture2D[] Cursors;
 
 	[Inject] private Inventory inventory;
-
 	[Inject] private UiController uiController;
+	[Inject] private FarmingManager farmingManager;
 
 	private Animator animator;
 
@@ -30,6 +30,8 @@ public class PlayerController : MonoBehaviour
 	private LayerMask terrainLayer;
 
 	private int currentSelectedCursor;
+
+	private bool inputEnabled = true;
 	
 	// Use this for initialization
 	void Start ()
@@ -55,70 +57,85 @@ public class PlayerController : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update () {
-		HandleKeys();
-		
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-		RaycastHit hit;
-		Vector3 mousePosition = Vector3.zero;
-		
-		if (Physics.Raycast(ray, out hit, Mathf.Infinity, terrainLayer))
+		if (inputEnabled)
 		{
-			mousePosition = hit.point;
-			mousePosition.x = Mathf.Floor(mousePosition.x);
-			mousePosition.z = Mathf.Floor(mousePosition.z);
-
-			if (FarmingManager.CanBeHarvested((int) mousePosition.x - 20, (int) mousePosition.z - 20))
+			HandleKeys();
+		
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit hit;
+			Vector3 mousePosition = Vector3.zero;
+		
+			if (Physics.Raycast(ray, out hit, Mathf.Infinity, terrainLayer))
 			{
-				if (currentSelectedCursor == 0)
+				mousePosition = hit.point;
+				mousePosition.x = Mathf.Floor(mousePosition.x);
+				mousePosition.z = Mathf.Floor(mousePosition.z);
+
+				if (farmingManager.CanBeHarvested((int) mousePosition.x - 20, (int) mousePosition.z - 20))
 				{
-					currentSelectedCursor = 1;
-					Cursor.SetCursor(Cursors[currentSelectedCursor], Vector2.zero, CursorMode.ForceSoftware);
+					if (currentSelectedCursor == 0)
+					{
+						currentSelectedCursor = 1;
+						Cursor.SetCursor(Cursors[currentSelectedCursor], Vector2.zero, CursorMode.ForceSoftware);
+					}
 				}
+				else
+				{
+					if (currentSelectedCursor == 1)
+					{
+						currentSelectedCursor = 0;
+						Cursor.SetCursor(Cursors[currentSelectedCursor], Vector2.zero, CursorMode.ForceSoftware);
+					}
+				}
+
+				if (IsMouseNearPlayer(mousePosition))
+				{
+					Marker.SetActive(true);
+					mousePosition.x += 0.5f;
+					mousePosition.z += 0.5f;
+					mousePosition.y = 0.011f;
+					Marker.transform.position = mousePosition;
+				}
+				else
+				{
+					Marker.SetActive(false);
+				}
+			}
+
+			if (pressedKeys.Count > 0)
+			{
+				animator.SetBool("walking", true);
+				KeyCode keyCode = pressedKeys[pressedKeys.Count - 1];
+				transform.rotation = GetRotation(keyCode);
+				transform.position += GetDirection(keyCode);
 			}
 			else
 			{
-				if (currentSelectedCursor == 1)
+				animator.SetBool("walking", false);
+			}
+
+			if (Input.GetMouseButtonDown(0))
+			{
+				mousePosition.x = Mathf.Floor(mousePosition.x);
+				mousePosition.z = Mathf.Floor(mousePosition.z);
+
+				if (IsMouseNearPlayer(mousePosition))
 				{
-					currentSelectedCursor = 0;
-					Cursor.SetCursor(Cursors[currentSelectedCursor], Vector2.zero, CursorMode.ForceSoftware);
+					Inventory.InventoryItem selectedItem = inventory.GetSelectedItem();
+					if (selectedItem != null)
+						farmingManager.Action(inventory.GetPlayerAction(), (int) mousePosition.x - 20, (int) mousePosition.z - 20, selectedItem.ItemName);
 				}
 			}
-
-			if (IsMouseNearPlayer(mousePosition))
-			{
-				Marker.SetActive(true);
-				mousePosition.x += 0.5f;
-				mousePosition.z += 0.5f;
-				mousePosition.y = 0.011f;
-				Marker.transform.position = mousePosition;
-			}
-			else
-			{
-				Marker.SetActive(false);
-			}
 		}
+	}
 
-		if (pressedKeys.Count > 0)
-		{
-			animator.SetBool("walking", true);
-			KeyCode keyCode = pressedKeys[pressedKeys.Count - 1];
-			transform.rotation = GetRotation(keyCode);
-			transform.position += GetDirection(keyCode);
-		}
-		else
-		{
-			animator.SetBool("walking", false);
-		}
+	public void SetInputEnabled(bool enabled)
+	{
+		this.inputEnabled = enabled;
 
-		if (Input.GetMouseButtonDown(0))
+		if (!enabled)
 		{
-			mousePosition.x = Mathf.Floor(mousePosition.x);
-			mousePosition.z = Mathf.Floor(mousePosition.z);
-
-			if (IsMouseNearPlayer(mousePosition))
-			{
-				FarmingManager.Action(inventory.GetPlayerAction(), (int) mousePosition.x - 20, (int) mousePosition.z - 20, inventory.GetSeed());
-			}
+			pressedKeys.Clear();
 		}
 	}
 
@@ -194,7 +211,7 @@ public class PlayerController : MonoBehaviour
 		
 		if (Input.GetKeyDown(KeyCode.B))
 		{
-			FarmingManager.UpdateFarmPatches();
+			farmingManager.UpdateFarmPatches();
 		}
 	}
 
@@ -209,12 +226,4 @@ public class PlayerController : MonoBehaviour
 
 		return (xDiff >= -1 && xDiff <= 1) && (zDiff >= -1 && zDiff <= 1);
 	}
-}
-
-public enum PlayerAction
-{
-	Plow,
-	Water,
-	Seed,
-	None
 }

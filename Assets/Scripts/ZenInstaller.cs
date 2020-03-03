@@ -7,5 +7,6 @@ public class ZenInstaller : MonoInstaller
     {
         Container.Bind<Inventory>().AsSingle();
         Container.Bind<UiController>().FromComponentInHierarchy().AsSingle();
+        Container.Bind<FarmingManager>().FromComponentInHierarchy().AsSingle();
     }
 }

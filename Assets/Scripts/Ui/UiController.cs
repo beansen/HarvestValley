@@ -10,9 +10,10 @@ public class UiController : MonoBehaviour
 
 	public Sprite[] Borders;
 	public Transform ItemsPanel, MainPanel;
-	public ItemSprite[] ItemSprites;
 	public GameObject collectablePrefab;
 	public Transform Player;
+	public Text Coins;
+	public DataStore DataStore;
 
 	private List<CollectableCrops> collectableCropsList;
 
@@ -77,13 +78,15 @@ public class UiController : MonoBehaviour
 	public void AddItem(int index, Inventory.InventoryItem item)
 	{
 		foregroundImages[index].gameObject.SetActive(true);
-		foregroundImages[index].sprite = item.PlayerAction == PlayerAction.None ? GetCollectableSprite(item.Seed) : GetSprite(item);
+		foregroundImages[index].sprite = item.PlayerAction == PlayerAction.None ?
+			DataStore.ItemGraphicsData[item.ItemName].Collectable
+			: DataStore.ItemGraphicsData[item.ItemName].Sprite;
 		itemTexts[index].text = item.Amount > 1 ? item.Amount.ToString() : String.Empty;
 	}
 
-	public void CreateCollectables(Seed seed, Vector3 start)
+	public void CreateCollectables(ItemName itemName, Vector3 start)
 	{
-		CollectableCrops collectable = new CollectableCrops(seed, start);
+		CollectableCrops collectable = new CollectableCrops(itemName, start);
 		
 		for (int i = 0; i < 4; i++)
 		{
@@ -91,7 +94,7 @@ public class UiController : MonoBehaviour
 			pos.z += Random.Range(-1f, 1f);
 
 			GameObject go = Instantiate(collectablePrefab, MainPanel);
-			go.GetComponent<Image>().sprite = GetCollectableSprite(seed);
+			go.GetComponent<Image>().sprite = DataStore.ItemGraphicsData[itemName].Collectable;
 			collectable.AddItem(go, pos);
 		}
 		
@@ -115,14 +118,16 @@ public class UiController : MonoBehaviour
 			
 			ItemsPanel.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
 			{
-				inventory.SelectItem(index);
-				SwitchSelection(index);
-
 				if (ChestMode)
 				{
 					bool transferred = inventory.TransferItemToChest(index);
 					if (transferred)
 						RemoveItem(index);
+				}
+				else
+				{
+					inventory.SelectItem(index);
+					SwitchSelection(index);
 				}
 			});
 
@@ -142,50 +147,8 @@ public class UiController : MonoBehaviour
 		}
 	}
 
-	private Sprite GetSprite(Inventory.InventoryItem item)
+	public void SetCoins(int amount)
 	{
-		if (item.PlayerAction == PlayerAction.Plow)
-		{
-			return ItemSprites[0].Sprite;
-		}
-		
-		if (item.PlayerAction == PlayerAction.Water)
-		{
-			return ItemSprites[1].Sprite;
-		}
-
-		for (int i = 2; i < ItemSprites.Length; i++)
-		{
-			if (ItemSprites[i].Seed == item.Seed)
-			{
-				return ItemSprites[i].Sprite;
-			}
-		}
-		
-
-		return null;
-	}
-	
-	private Sprite GetCollectableSprite(Seed seed)
-	{
-		for (int i = 2; i < ItemSprites.Length; i++)
-		{
-			if (ItemSprites[i].Seed == seed)
-			{
-				return ItemSprites[i].Collectable;
-			}
-		}
-		
-
-		return null;
-	}
-	
-	[Serializable]
-	public struct ItemSprite
-	{
-		public PlayerAction PlayerAction;
-		public Seed Seed;
-		public Sprite Sprite;
-		public Sprite Collectable;
+		Coins.text = amount.ToString();
 	}
 }

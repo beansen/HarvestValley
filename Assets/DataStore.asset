@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 663685602ff45564bb7da9656a093db1, type: 3}
+  m_Name: DataStore
+  m_EditorClassIdentifier: 
+  BalancingData:
+  - DaysToGrow: 4
+    Type: 2
+    AvgSellingPrice: 5
+    Price: 10
+  - DaysToGrow: 5
+    Type: 3
+    AvgSellingPrice: 6
+    Price: 12
+  - DaysToGrow: 10
+    Type: 4
+    AvgSellingPrice: 11
+    Price: 22
+  - DaysToGrow: 6
+    Type: 5
+    AvgSellingPrice: 7
+    Price: 14
+  - DaysToGrow: 7
+    Type: 6
+    AvgSellingPrice: 8
+    Price: 16
+  GraphicsData:
+  - Seed: 0
+    Sprite: {fileID: 21300132, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    Collectable: {fileID: 0}
+    FarmingPrefab: {fileID: 0}
+  - Seed: 1
+    Sprite: {fileID: 21300152, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    Collectable: {fileID: 0}
+    FarmingPrefab: {fileID: 0}
+  - Seed: 2
+    Sprite: {fileID: 21300320, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    Collectable: {fileID: 21300000, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    FarmingPrefab: {fileID: 1324423833576622, guid: 6a76cd620b914d64881f10412a941b9f,
+      type: 2}
+  - Seed: 3
+    Sprite: {fileID: 21300416, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    Collectable: {fileID: 21300064, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    FarmingPrefab: {fileID: 1152829629402584, guid: 8e3997ce39bbcf14f8b7b264d9d0ef6e,
+      type: 2}
+  - Seed: 4
+    Sprite: {fileID: 21300430, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    Collectable: {fileID: 21300078, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    FarmingPrefab: {fileID: 1146748498091618, guid: 088f330b64fb5b24f9a2886141cbcf60,
+      type: 2}
+  - Seed: 5
+    Sprite: {fileID: 21300426, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    Collectable: {fileID: 21300074, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    FarmingPrefab: {fileID: 1411209658592846, guid: 0e0eee7ac9d213540bdebbbf9ca1df39,
+      type: 2}
+  - Seed: 6
+    Sprite: {fileID: 21300418, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    Collectable: {fileID: 21300066, guid: afd65fbec5e247742baf24312faaff12, type: 3}
+    FarmingPrefab: {fileID: 1184345255510374, guid: 4be94dc9c10e8844caa967c42b68f9b4,
+      type: 2}

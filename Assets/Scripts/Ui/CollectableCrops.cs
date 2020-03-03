@@ -8,12 +8,12 @@ public class CollectableCrops
 {
     private float timer;
     private List<ObjectData> objects;
-    private Seed seed;
+    private ItemName seed;
     private CollectableState state = CollectableState.Enabled;
     private DateTime collectionTime;
     private Vector3 worldPosition;
 
-    public Seed Seed
+    public ItemName Seed
     {
         get { return seed; }
     }
@@ -33,7 +33,7 @@ public class CollectableCrops
         get { return worldPosition; }
     }
 
-    public CollectableCrops(Seed seed, Vector3 worldPosition)
+    public CollectableCrops(ItemName seed, Vector3 worldPosition)
     {
         this.seed = seed;
         this.worldPosition = worldPosition;
