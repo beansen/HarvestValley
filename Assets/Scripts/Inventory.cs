@@ -11,7 +11,7 @@ public class Inventory
 	private int selectedItem;
 	private int freeSlot;
 	private int backpackSize = 10;
-	private int coins = 100;
+	private int coins = 300;
 
 	public int Coins
 	{
@@ -171,6 +171,12 @@ public class Inventory
 	public void AddCoins(int amount)
 	{
 		coins += amount;
+		uiController.SetCoins(coins);
+	}
+
+	public void RemoveCoins(int amount)
+	{
+		coins -= amount;
 		uiController.SetCoins(coins);
 	}
 

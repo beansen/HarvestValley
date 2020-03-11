@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
 	[Inject] private Inventory inventory;
 	[Inject] private UiController uiController;
 	[Inject] private FarmingManager farmingManager;
+	[Inject] private MarketController marketController;
 
 	private Animator animator;
 
@@ -64,7 +65,7 @@ public class PlayerController : MonoBehaviour
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			RaycastHit hit;
 			Vector3 mousePosition = Vector3.zero;
-		
+			
 			if (Physics.Raycast(ray, out hit, Mathf.Infinity, terrainLayer))
 			{
 				mousePosition = hit.point;
@@ -116,6 +117,20 @@ public class PlayerController : MonoBehaviour
 
 			if (Input.GetMouseButtonDown(0))
 			{
+				if (Physics.Raycast(ray, out hit, Mathf.Infinity))
+				{
+					if (hit.transform.tag.Equals("Market"))
+					{
+						float dist = Vector3.Distance(transform.position, hit.point);
+
+						if (dist <= 3)
+						{
+							SetInputEnabled(false);
+							marketController.OpenMarketScreen();
+							return;
+						}
+					}
+				}
 				mousePosition.x = Mathf.Floor(mousePosition.x);
 				mousePosition.z = Mathf.Floor(mousePosition.z);
 
