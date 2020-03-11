@@ -26,6 +26,16 @@ public class FarmingManager : MonoBehaviour
 
 	public void Action(PlayerAction type, int x, int y, ItemName item)
 	{
+		if (x < 0 || y < 0 || x > 78 || y > 78)
+		{
+			return;
+		}
+
+		if (x > 52 && y > 65)
+		{
+			return;
+		}
+		
 		int id = y * 80 + x;
 
 		FarmingPatch patch = null;
